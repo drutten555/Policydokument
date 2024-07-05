@@ -1,3 +1,4 @@
-.env
+KaisProject/.env
+KaisProject/myEnv
+KaisProject/RegulatoryDocs
 .DS_Store
-data
