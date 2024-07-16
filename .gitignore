@@ -2,3 +2,7 @@ KaisProject/.env
 KaisProject/myEnv
 KaisProject/RegulatoryDocs
 .DS_Store
+data
+output
+src/__pycache__
+.gitignore
