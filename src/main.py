@@ -4,14 +4,14 @@ import openai
 import chromadb
 import torch
 
-from langchain_openai import ChatOpenAI
-from langchain_community.callbacks import get_openai_callback
-from langchain_community.vectorstores import Chroma
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_core.prompts import PromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
+from langchain_community.vectorstores import Chroma
 from langchain_community.chat_models import ChatOllama
+from langchain_community.callbacks import get_openai_callback
+from langchain_openai import ChatOpenAI
 
 PATH_DB = '../db'
 COLLECTION_NAME = 'policy_collection'
@@ -78,20 +78,19 @@ def get_chatGPT_response(query: str, vectorstore: Chroma, llm, model_name) -> st
         | StrOutputParser()
     )
     
-    print("====================================================================\n")   
-    if model_name is not 'llama3':
+    print("====================================================================")   
+    if model_name != 'llama3':
         with get_openai_callback() as cb:
             answer = rag_chain.invoke(query)
             print(cb)
     else:
         answer = rag_chain.invoke(query)
-    print("====================================================================\n")    
+    print("====================================================================\n")
 
     return answer  # type: ignore
 
-def main(
-    persist_directory: str = "."
-) -> None:
+def main(persist_directory: str = ".") -> None:
+    print("====================================================================")
     
     llm_model_name = input(
         'Pick an LLM model:\n' +
@@ -112,9 +111,9 @@ def main(
 
             # Ask what model to use
             model_name = "gpt-3.5-turbo"
-            answer = input(f"Do you want to use GPT-4? (y/n) (default is {model_name}): ")
+            answer = input(f"Do you want to use GPT-4o? (y/n) (default is {model_name}): ")
             if answer == "y":
-                model_name = "gpt-4"
+                model_name = "gpt-4o"
                 
             # Initialize LLM chatbot
             llm = ChatOpenAI(model=model_name)
@@ -155,6 +154,7 @@ def main(
             print("\n")
             print('To exit, press Ctrl + c')
     except KeyboardInterrupt:
+        print('=> Exiting script...')
         exit()
 
 if __name__ == "__main__":
@@ -168,17 +168,10 @@ if __name__ == "__main__":
         default=PATH_DB,
         help="The directory where you want to store the Chroma collection",
     )
-    parser.add_argument(
-        "--collection_name",
-        type=str,
-        default=COLLECTION_NAME,
-        help="The name of the Chroma collection",
-    )
 
     # Parse arguments
     args = parser.parse_args()
 
     main(
-        collection_name=args.collection_name,
         persist_directory=args.persist_directory,
     )

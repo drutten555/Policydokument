@@ -3,6 +3,5 @@ KaisProject/myEnv
 KaisProject/RegulatoryDocs
 .DS_Store
 data
-output
+outputs
 src/__pycache__
-.gitignore
