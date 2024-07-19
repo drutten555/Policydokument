@@ -1,11 +1,11 @@
-# Custom
+# Custom objects
+data
+visualizations
+legacy
 .env
 .DS_Store
-myEnv/
-/KaisProject/nltk_data
-/KaisProject/RegulatoryDocs
+venv
 
-#Default 
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
