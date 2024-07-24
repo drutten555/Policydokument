@@ -1,6 +1,7 @@
 python-dotenv
 langchain
 langchain_openai
+langchain_community
 pypdf
 faiss-cpu 
 
@@ -8,6 +9,4 @@ openai
 openai-whisper
 ffmpeg
 python-dotenv
-tqdm
-
-
+tqdmol
