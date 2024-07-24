@@ -8,13 +8,13 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from transformers import AutoTokenizer
 from langchain_community.vectorstores import Chroma
 
-PATH_DB = '../db'
-COLLECTION_NAME = 'policy_collection'
-DOCUMENTS_DIR = 'src/documents'
+PATH_DB = "../db"
+COLLECTION_NAME = "default"
+DOCUMENTS_DIR = "src/documents"
 
-MODEL_NAME_KBLAB = 'KBLab/sentence-bert-swedish-cased'
-MODEL_NAME_KB = 'KB/bert-base-swedish-cased'
-MODEL_NAME_INTFLOAT = 'intfloat/multilingual-e5-large-instruct'
+MODEL_NAME_KBLAB = "KBLab/sentence-bert-swedish-cased"
+MODEL_NAME_KB = "KB/bert-base-swedish-cased"
+MODEL_NAME_INTFLOAT = "intfloat/multilingual-e5-large-instruct"
 
 def split_documents(chunk_size, documents, tokenizer_name):
     """
@@ -34,7 +34,7 @@ def split_documents(chunk_size, documents, tokenizer_name):
     ]
     # Remove all whitespaces between newlines e.g. \n \n \n \n --> \n\n\n\n
     for doc in documents:
-        doc.page_content = re.sub('(?<=\\n) (?=\\n)', '', doc.page_content)
+        doc.page_content = re.sub("(?<=\\n) (?=\\n)", "", doc.page_content)
 
     text_splitter = RecursiveCharacterTextSplitter.from_huggingface_tokenizer(
         tokenizer=AutoTokenizer.from_pretrained(tokenizer_name),
@@ -63,11 +63,11 @@ def get_embedding_model(model_name):
     """
     # Initialize an instance of HuggingFaceEmbeddings with the specified parameters
     """
-    device = 'cuda:0' if torch.cuda.is_available() else 'cpu'   # Check for CUDA enabled GPU
+    device = "cuda:0" if torch.cuda.is_available() else "cpu"   # Check for CUDA enabled GPU
     return HuggingFaceEmbeddings(
-        model_name=model_name, # Provide the pre-trained model's path
-        model_kwargs={'device':device}, # Pass the model configuration options
-        encode_kwargs={'normalize_embeddings': True} # Set `True` for cosine similarity
+        model_name=model_name, # Provide the pre-trained model"s path
+        model_kwargs={"device":device}, # Pass the model configuration options
+        encode_kwargs={"normalize_embeddings": True} # Set `True` for cosine similarity
     )
 
 def main(
@@ -76,12 +76,12 @@ def main(
     persist_directory: str = PATH_DB,
 ) -> None:
     # Read all files in the data directory
-    print('=> Loading documents...')
+    print("=> Loading documents...")
     loader = PyPDFDirectoryLoader(documents_directory)
     documents = loader.load()
     
     # Split the documents to chunks
-    print('=> Splitting into chunks...')
+    print("=> Splitting into chunks...")
     docs = split_documents(
         768,  # Choose a chunk size adapted to our model
         documents,
@@ -109,7 +109,7 @@ if __name__ == "__main__":
 
     # Add arguments
     parser.add_argument(
-        "--data_directory",
+        "--data_dir",
         type=str,
         default=DOCUMENTS_DIR,
         help="The directory where your text files are stored",
@@ -121,7 +121,7 @@ if __name__ == "__main__":
         help="The name of the Chroma collection",
     )
     parser.add_argument(
-        "--persist_directory",
+        "--persist_dir",
         type=str,
         default=PATH_DB,
         help="The directory where you want to store the Chroma collection",
@@ -129,9 +129,8 @@ if __name__ == "__main__":
 
     # Parse arguments
     args = parser.parse_args()
-
     main(
-        documents_directory=args.data_directory,
+        documents_directory=args.data_dir,
         collection_name=args.collection_name,
-        persist_directory=args.persist_directory,
+        persist_directory=args.persist_dir,
     )

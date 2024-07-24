@@ -14,9 +14,21 @@ To run RAG using llama3 do the following:
 
 ## Run Python script
 
-`load_data.py` - to add documents to the Chroma DB. Do this once if you haven't initialized a ChormaDB previously.
+`load_data.py` - to add documents to the Chroma DB. Do this once if you haven't initialized a ChormaDB previously or want to create a new collection with new documents.
+
+The script can be run in the terminal with the argments `--data_dir`, `--collection_name` and `--persist_dir`.
+```
+python3 load.py --data_dir path/to/data --collection_name default --persist_dir path/to/db
+```
+
 
 `main.py` - to run the RAG bot.
+
+The script can be run in the terminal with the argments `--collection_name` and `--persist_dir`.
+```
+python3 main.py --collection_name default --persist_dir path/to/db
+```
+
 
 ## Useful commands
 

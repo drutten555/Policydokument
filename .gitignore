@@ -3,5 +3,7 @@ KaisProject/myEnv
 KaisProject/RegulatoryDocs
 .DS_Store
 data
-outputs
+out
 src/__pycache__
+src/documents
+db
