@@ -1,4 +1,3 @@
-import os
 import argparse
 
 from langchain_experimental.text_splitter import SemanticChunker

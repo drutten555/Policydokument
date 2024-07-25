@@ -8,7 +8,6 @@ from chromadb.utils.embedding_functions import OllamaEmbeddingFunction
 from openai import OpenAI
 
 import chromadb
-import openai
 
 
 def get_chatGPT_response(openai_client, query: str, context: List[str], model_name: str) -> str:
@@ -112,7 +111,7 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "--persist_directory",
+        "--persist_dir",
         type=str,
         default="../db",
         help="The directory where you want to store the Chroma collection",
