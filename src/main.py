@@ -128,5 +128,5 @@ if __name__ == "__main__":
 
     main(
         collection_name=args.collection_name,
-        persist_directory=args.persist_directory,
+        persist_directory=args.persist_dir,
     )
