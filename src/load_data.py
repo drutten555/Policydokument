@@ -9,8 +9,8 @@ from transformers import AutoTokenizer
 from langchain_community.vectorstores import Chroma
 
 PATH_DB = "../db"
-COLLECTION_NAME = "default"
-DOCUMENTS_DIR = "src/documents"
+COLLECTION_NAME = "research" #"default"
+DOCUMENTS_DIR = "documents/research" # stand in src
 
 MODEL_NAME_KBLAB = "KBLab/sentence-bert-swedish-cased"
 MODEL_NAME_KB = "KB/bert-base-swedish-cased"
