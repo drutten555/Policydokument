@@ -1,4 +1,3 @@
-from langchain_core.prompts import PromptTemplate, ChatPromptTemplate
 from openai.types.chat import ChatCompletionMessageParam
 from typing import List
 

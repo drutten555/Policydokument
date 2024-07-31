@@ -80,7 +80,8 @@ def main(
         embedding_function=OllamaEmbeddingFunction(
             model_name="nomic-embed-text",
             url="http://localhost:11434/api/embeddings",
-        ))
+        )
+    )
 
     # We use a simple input loop.
     while True:
@@ -113,13 +114,13 @@ if __name__ == "__main__":
     parser.add_argument(
         "--persist_dir",
         type=str,
-        default="../db",
+        default="db",
         help="The directory where you want to store the Chroma collection",
     )
     parser.add_argument(
         "--collection_name",
         type=str,
-        default="research",
+        default="default",
         help="The name of the Chroma collection",
     )
 

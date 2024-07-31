@@ -1,4 +1,5 @@
 import argparse
+import os
 
 from langchain_experimental.text_splitter import SemanticChunker
 from langchain_community.document_loaders.pdf import PyPDFDirectoryLoader
@@ -9,8 +10,8 @@ import chromadb
 
 
 def main(
-    documents_directory: str = "documents",
-    collection_name: str = "documents",
+    documents_directory: str = "../documents",
+    collection_name: str = "default",
     persist_directory: str = "../db",
 ) -> None:
     
@@ -22,14 +23,24 @@ def main(
     # data to an existing collection.
     collection = client.get_or_create_collection(name=collection_name)
     count = collection.count()
-    print(f"Collection already contains {count} documents")
+    print(f"=> Collection already contains {count} documents.")
+
+    # Change '.PDF' to '.pdf'
+    doc_names = os.listdir(documents_directory)
+    for doc_name in doc_names:
+        if doc_name.endswith('.PDF'):
+            old_file_path = os.path.join(documents_directory, doc_name)
+            new_file_name = doc_name[:-4] + '.pdf'
+            new_file_path = os.path.join(documents_directory, new_file_name)
+            os.rename(old_file_path, new_file_path)
 
     # Read all files in the data directory
     print("=> Loading documents...")
     loader = PyPDFDirectoryLoader(documents_directory)
     documents = loader.load()
 
-    # Extract metadata
+    # Extract metadata and check if document already exists in Chroma.
+    print("=> Extracting metadata...")
     unique_documents = []
     for document in documents:
         results = collection.get(
@@ -37,6 +48,7 @@ def main(
             include=["metadatas"],
         )
         if not results["ids"]:
+            # Document not in Chroma.
             file_name = document.metadata["source"].split("/")[-1]
             document.metadata.update({"file_name": file_name})
             unique_documents.append(document)
@@ -55,7 +67,7 @@ def main(
     documents = text_splitter.split_documents(unique_documents)
     
     # Instantiate a persistent Chroma vectorstore in the persist_directory.
-    db = Chroma.from_documents(
+    Chroma.from_documents(
         unique_documents,
         embedder,
         collection_name=collection_name,
@@ -75,19 +87,19 @@ if __name__ == "__main__":
     parser.add_argument(
         "--data_dir",
         type=str,
-        default="src/documents/research",
+        default="documents/",
         help="The directory where your text files are stored",
     )
     parser.add_argument(
         "--collection_name",
         type=str,
-        default="research",
+        default="default",
         help="The name of the Chroma collection",
     )
     parser.add_argument(
         "--persist_dir",
         type=str,
-        default="../db",
+        default="db",
         help="The directory where you want to store the Chroma collection",
     )
 
