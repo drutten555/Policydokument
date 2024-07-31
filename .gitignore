@@ -1,8 +1,6 @@
-KaisProject/.env
-KaisProject/myEnv
-KaisProject/RegulatoryDocs
 .DS_Store
 db
 out
+documents
 src/__pycache__
-src/documents
+.env
