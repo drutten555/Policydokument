@@ -7,6 +7,7 @@ PATH_DB = '../db'
 def main(persist_directory: str = ".") -> None:
     
     client = chromadb.PersistentClient(path=persist_directory, settings=Settings(allow_reset=True))
+    print("=> ChromaDB contains these collections:", client.list_collections())
     client.reset()
     print("=> ChromaDB has been reset. The db contain no collections:", client.list_collections())
 

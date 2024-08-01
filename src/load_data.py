@@ -1,7 +1,9 @@
 import argparse
 import os
-from typing import List
+import chromadb
+import time
 
+from typing import List
 from langchain_experimental.text_splitter import SemanticChunker
 from langchain_community.document_loaders.pdf import PyPDFLoader
 from langchain_community.embeddings import OllamaEmbeddings
@@ -9,8 +11,6 @@ from langchain_community.vectorstores import Chroma
 from langchain_core.documents import Document
 from chromadb.api.models.Collection import Collection
 
-import chromadb
-from pprint import pprint
 
 def load_documents(documents_directory: str) -> List[Document]:
     """Loads PDF:s into a list. Renames the file name so that .PDF -> .pdf.
@@ -73,6 +73,7 @@ def main(
     collection_name: str = "default", 
     persist_directory: str = "db"
 ) -> None:
+    start_time = time.time() # Start the timer
 
     # Instantiations
     client = chromadb.PersistentClient(path=persist_directory)  # A persistent chroma client in the persist_directory.
@@ -86,33 +87,36 @@ def main(
     print(f"=> Collection {collection.name} contains {count} documents.")
     # pprint(collection.get()["metadatas"], compact=True)
 
-    directories = os.listdir(documents_directory)
-    for dir in directories:
-        print(f"\n--- {dir.upper()} ---")
-        print("=> Loading documents...")
-        documents_subdirectory = os.path.join(documents_directory, dir)
-        documents = load_documents(documents_subdirectory)
+    for root, dirs, files in os.walk(documents_directory):
+        for dir in dirs:
+            print(f"\n--- {dir.upper()} ---")
+            print("=> Loading documents...")
+            documents_subdirectory = os.path.join(root, dir)
+            documents = load_documents(documents_subdirectory)
 
-        print("=> Extracting metadata...")
-        new_documents = extract_metadata(documents, collection)
-        if not new_documents:
-            print("=> No new documents to be added.")
-            continue
+            print("=> Extracting metadata...")
+            new_documents = extract_metadata(documents, collection)
+            if not new_documents:
+                print("=> No new documents to be added.")
+                continue
 
-        # Split the documents to chunks
-        print("=> Splitting into chunks...")
-        new_documents = text_splitter.split_documents(new_documents)
-        
-        # Instantiate a persistent Chroma vectorstore in the persist_directory.
-        print("=> Uploading documents into Chroma...")
-        vectorstore = Chroma.from_documents(
-            new_documents,
-            embedder,
-            collection_name=collection_name,
-            persist_directory=persist_directory
-        )
-        new_count = collection.count()
-        print(f"Added {new_count - count} chunks to {vectorstore._collection.name}")
+            # Split the documents to chunks
+            print("=> Splitting into chunks...")
+            new_documents = text_splitter.split_documents(new_documents)
+            
+            # Instantiate a persistent Chroma vectorstore in the persist_directory.
+            print("=> Uploading documents into Chroma...")
+            vectorstore = Chroma.from_documents(
+                new_documents,
+                embedder,
+                collection_name=collection_name,
+                persist_directory=persist_directory
+            )
+            new_count = collection.count()
+            print(f"Added {new_count - count} chunks to {vectorstore._collection.name}")
+
+    end_time = time.time()  # End the timer
+    print(f"=> Time taken: {end_time - start_time:.2f} seconds")
 
 
 if __name__ == "__main__":
@@ -146,7 +150,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     main(
-        documents_directory=args.data_dir,
-        collection_name=args.collection_name,
-        persist_directory=args.persist_dir,
+        documents_directory=args.data,
+        collection_name=args.collection,
+        persist_directory=args.db,
     )
