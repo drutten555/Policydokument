@@ -86,33 +86,33 @@ def main(
     print(f"=> Collection {collection.name} contains {count} documents.")
     # pprint(collection.get()["metadatas"], compact=True)
 
-    directories = os.listdir(documents_directory)
-    for dir in directories:
-        print(f"\n--- {dir.upper()} ---")
-        print("=> Loading documents...")
-        documents_subdirectory = os.path.join(documents_directory, dir)
-        documents = load_documents(documents_subdirectory)
+    for root, dirs, files in os.walk(documents_directory):
+        for dir in dirs:
+            print(f"\n--- {dir.upper()} ---")
+            print("=> Loading documents...")
+            documents_subdirectory = os.path.join(documents_directory, dir)
+            documents = load_documents(documents_subdirectory)
 
-        print("=> Extracting metadata...")
-        new_documents = extract_metadata(documents, collection)
-        if not new_documents:
-            print("=> No new documents to be added.")
-            continue
+            print("=> Extracting metadata...")
+            new_documents = extract_metadata(documents, collection)
+            if not new_documents:
+                print("=> No new documents to be added.")
+                continue
 
-        # Split the documents to chunks
-        print("=> Splitting into chunks...")
-        new_documents = text_splitter.split_documents(new_documents)
-        
-        # Instantiate a persistent Chroma vectorstore in the persist_directory.
-        print("=> Uploading documents into Chroma...")
-        vectorstore = Chroma.from_documents(
-            new_documents,
-            embedder,
-            collection_name=collection_name,
-            persist_directory=persist_directory
-        )
-        new_count = collection.count()
-        print(f"Added {new_count - count} chunks to {vectorstore._collection.name}")
+            # Split the documents to chunks
+            print("=> Splitting into chunks...")
+            new_documents = text_splitter.split_documents(new_documents)
+            
+            # Instantiate a persistent Chroma vectorstore in the persist_directory.
+            print("=> Uploading documents into Chroma...")
+            vectorstore = Chroma.from_documents(
+                new_documents,
+                embedder,
+                collection_name=collection_name,
+                persist_directory=persist_directory
+            )
+            new_count = collection.count()
+            print(f"Added {new_count - count} chunks to {vectorstore._collection.name}")
 
 
 if __name__ == "__main__":
@@ -126,7 +126,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--data",
         type=str,
-        default="documents",
+        default="/Users/kailashdejesushornig/Documents/GitHub/P2_Policydokument/data/all_files_swe",
         help="The directory where your text files are stored",
     )
     parser.add_argument(
@@ -146,7 +146,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     main(
-        documents_directory=args.data_dir,
-        collection_name=args.collection_name,
-        persist_directory=args.persist_dir,
+        documents_directory=args.data,
+        collection_name=args.collection,
+        persist_directory=args.db,
     )
