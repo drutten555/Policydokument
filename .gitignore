@@ -4,3 +4,4 @@ out
 documents
 src/__pycache__
 .env
+.venv

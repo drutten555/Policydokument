@@ -32,10 +32,18 @@ To run RAG using llama3 do the following:
     python3 main.py --collection_name default --persist_dir path/to/db
     ```
 
-- `clear_db.py` - resets the ChromaDB.
-
 - `prompts.py` - builds a prompt for the LLM.
 
+- To reset the ChromaDB, remove everything in `db` folder.
+    ```
+    rm -r db/*
+    ```
+
+###
+If you want to generate your own requirements file run the command below. This is useful if your venv has become problematic and you want to remove and create a new venv.
+```
+pip freeze > requirements.txt
+```
 
 ## Useful commands
 
@@ -49,3 +57,4 @@ If you want to generate your own requirements file run the command below. This i
 ```
 pip freeze > requirements.txt
 ```
+
