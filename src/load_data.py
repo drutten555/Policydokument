@@ -4,11 +4,11 @@ import chromadb
 import time
 
 from typing import List
+from langchain_core.documents import Document
 from langchain_experimental.text_splitter import SemanticChunker
 from langchain_community.document_loaders.pdf import PyPDFLoader
 from langchain_community.embeddings import OllamaEmbeddings
 from langchain_community.vectorstores import Chroma
-from langchain_core.documents import Document
 from chromadb.api.models.Collection import Collection
 
 
@@ -45,6 +45,7 @@ def load_documents(documents_directory: str) -> List[Document]:
     
     return documents
 
+
 def extract_metadata(documents: List[Document], collection: Collection) -> List[Document]:
     """Extract metadata and check if document already exists in Chroma.
 
@@ -55,6 +56,7 @@ def extract_metadata(documents: List[Document], collection: Collection) -> List[
     Returns:
         List[Document]: list of documents not in already loaded in Chroma.
     """
+    
     new_documents = []
     for document in documents:
         results = collection.get(
@@ -63,29 +65,31 @@ def extract_metadata(documents: List[Document], collection: Collection) -> List[
         )
         if not results["ids"]:
             # Document not in Chroma.
-            file_name = document.metadata["source"].split("/")[-2]
+            field, file_name = document.metadata["source"].split("/")[-2:]
             document.metadata.update({"file_name": file_name})
+            document.metadata.update({"field": field})
             new_documents.append(document)
     return new_documents
+
 
 def main(
     documents_directory: str = "documents", 
     collection_name: str = "default", 
     persist_directory: str = "db"
 ) -> None:
+    
     start_time = time.time() # Start the timer
 
     # Instantiations
     client = chromadb.PersistentClient(path=persist_directory)  # A persistent chroma client in the persist_directory.
     embedder = OllamaEmbeddings(model="mxbai-embed-large")      # The embedding model
-    text_splitter = SemanticChunker(embedder)                   #  The text splitter
+    text_splitter = SemanticChunker(embedder)                   # The text splitter
 
-    # If the collection already exists, we just return it. This allows us to add more
-    # data to an existing collection.
+    # If the collection already exists, we just return it. 
+    # This allows us to add more data to an existing collection.
     collection = client.get_or_create_collection(name=collection_name)
     count = collection.count()
     print(f"=> Collection {collection.name} contains {count} documents.")
-    # pprint(collection.get()["metadatas"], compact=True)
 
     for root, dirs, files in os.walk(documents_directory):
         for dir in dirs:
@@ -107,8 +111,8 @@ def main(
             # Instantiate a persistent Chroma vectorstore in the persist_directory.
             print("=> Uploading documents into Chroma...")
             vectorstore = Chroma.from_documents(
-                new_documents,
-                embedder,
+                documents=new_documents,
+                embedding=embedder,
                 collection_name=collection_name,
                 persist_directory=persist_directory
             )
