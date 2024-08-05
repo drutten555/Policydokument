@@ -74,7 +74,7 @@ def extract_metadata(documents: List[Document], collection: Collection) -> List[
 
 def main(
     documents_directory: str = "documents", 
-    collection_name: str = "default", 
+    collection_name: str = "policy", 
     persist_directory: str = "db"
 ) -> None:
     
@@ -132,19 +132,19 @@ if __name__ == "__main__":
 
     # Add arguments
     parser.add_argument(
-        "--data",
+        "--data_dir",
         type=str,
         default="documents",
         help="The directory where your text files are stored",
     )
     parser.add_argument(
-        "--collection",
+        "--collection_name",
         type=str,
         default="policy",
         help="The name of the Chroma collection",
     )
     parser.add_argument(
-        "--db",
+        "--persist_dir",
         type=str,
         default="db",
         help="The directory where you want to store the Chroma collection",
@@ -154,7 +154,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     main(
-        documents_directory=args.data,
-        collection_name=args.collection,
-        persist_directory=args.db,
+        documents_directory=args.data_dir,
+        collection_name=args.collection_name,
+        persist_directory=args.persist_dir,
     )

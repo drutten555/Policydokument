@@ -1,13 +1,11 @@
 import argparse
 import os
 import getpass
-import prompts
+import chromadb
 
 from typing import List
 from chromadb.utils.embedding_functions import OllamaEmbeddingFunction
 from openai import OpenAI
-
-import chromadb
 
 
 def get_chatGPT_response(openai_client, query: str, context: List[str], model_name: str) -> str:
@@ -21,14 +19,27 @@ def get_chatGPT_response(openai_client, query: str, context: List[str], model_na
     Returns:
     A response to the question.
     """
+
+    prompt = [
+        {
+            "role": "system",
+            "content": f"""I am going to ask you a question, which I would like you to answer.
+                First answer the question with yes or no, and then give an explaination based only on the provided context.
+                If there is not enough information in the context to answer the question, say "I am not sure", then try to make a guess.
+                Respond with a short and consice answer.
+            """
+        },
+        {
+            "role": "user", 
+            "content": f"""I'm a Chalmers employee and the question is {query}. Here is all the context you have: {context}"""}
+    ]
+
     response = openai_client.chat.completions.create(
         model=model_name,
-        messages=prompts.build_prompt(query, context, prompts.default),
-        stream=True
+        messages=prompt,
     )
 
-    # return response.choices[0].message.content  # type: ignore
-    return response
+    return response.choices[0].message.content  # type: ignore
 
 
 def get_LLM():
@@ -63,7 +74,8 @@ def get_LLM():
 
 
 def main(
-    collection_name: str = "documents_collection", persist_directory: str = "."
+    collection_name: str = "policy", 
+    persist_directory: str = "db"
 ) -> None:
     
     # Instantiate a LLM model
@@ -71,14 +83,13 @@ def main(
 
     # Instantiate a persistent chroma client in the persist_directory.
     # This will automatically load any previously saved collections.
-    # Learn more at docs.trychroma.com
     client = chromadb.PersistentClient(path=persist_directory)
 
     # Get the collection.
     collection = client.get_collection(
         name=collection_name, 
         embedding_function=OllamaEmbeddingFunction(
-            model_name="nomic-embed-text",
+            model_name="mxbai-embed-large",
             url="http://localhost:11434/api/embeddings",
         )
     )
@@ -99,11 +110,7 @@ def main(
 
         # Get the response from GPT
         response = get_chatGPT_response(openai_client, query, results["documents"][0], model_name)  # type: ignore
-
-        # Output
-        for chunk in response:
-            print(chunk.choices[0].delta.content, end="", flush=True)
-        print("\n")
+        print("Answer:", response)
 
 
 if __name__ == "__main__":
@@ -120,7 +127,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--collection_name",
         type=str,
-        default="default",
+        default="policy",
         help="The name of the Chroma collection",
     )
 
