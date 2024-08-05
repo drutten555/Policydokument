@@ -37,7 +37,6 @@ To run RAG using llama3 do the following:
     $ rm -r db/*
     ```
 
-- `prompts.py` - builds a prompt for the LLM.
 
 ## Useful commands
 
